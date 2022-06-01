@@ -133,4 +133,15 @@ public class SwordController : MonoBehaviour
     {
         forcePunch = force;
     }
+    
+    public GameObject player;
+    [SerializeField]
+    Vector3 cameraHeight = new Vector3(0f, 0f, 0f);
+
+    void Update()
+    {
+        Vector3 pos = player.transform.position;
+        pos += cameraHeight;
+        transform.position = pos;
+    }
 }
