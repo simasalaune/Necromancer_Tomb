@@ -215,4 +215,82 @@ public class EnemyController : MonoBehaviour
 
         Destroy(gameObject);
     }
+
+    [Min(0f)]
+    [SerializeField]
+    private float moveSpeed = 2.5f;
+
+    [Min(0f)]
+    [SerializeField]
+    private float jumpForce = 2.5f;
+
+    [SerializeField]
+    private List<Material> materials;
+    private int count = 0;
+    private int max;
+
+    [SerializeField]
+    private GameObject ground;
+
+    private Renderer currentMaterial;
+
+    private float horizontalInput;
+    private bool isJumping;
+    private bool isGrounded;
+
+    private Rigidbody rb;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        currentMaterial = ground.GetComponent<Renderer>();
+        currentMaterial.enabled = true;
+        currentMaterial.sharedMaterial = materials[count];
+        max = materials.Count;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        ProcessInput();
+    }
+    void FixedUpdate()
+    {
+        Movement();
+    }
+
+    private void Movement()
+    {
+        rb.velocity = new Vector3(horizontalInput * moveSpeed, rb.velocity.y, 0);
+        if (isJumping && isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+        isJumping = false;
+    }
+
+    private void ProcessInput()
+    {
+        horizontalInput = Input.GetAxis("Horizontal");
+        if (Input.GetButtonDown("Jump"))
+            isJumping = true;
+    }
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+            currentMaterial.sharedMaterial = materials[count++];
+            if (count >= max)
+                count = 0;
+        }
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        if (other.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
+        }
+    }
 }

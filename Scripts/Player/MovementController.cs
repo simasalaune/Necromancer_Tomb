@@ -156,4 +156,127 @@ public class MovementController : MonoBehaviour
         }
         rb.velocity = Vector3.zero;
     }
+
+    [SerializeField]
+    private float moveSpeed = 5.0f;
+
+    [SerializeField]
+    private Transform ball;
+
+    [SerializeField]
+    private Transform target;
+
+    [SerializeField]
+    private Transform ballTarget;
+
+    [SerializeField]
+    private Transform hands;
+
+    private bool isBallInHands = true;
+    private bool isBallFlying = false;
+    private float T;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Vector3 direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical"));
+        transform.position += direction * moveSpeed * Time.deltaTime;
+        transform.LookAt(transform.position + direction);
+
+        if (isBallInHands)
+        {
+            if (Input.GetKey(KeyCode.Space))
+            {
+                ball.position = target.position;
+
+            }
+            else
+                ball.position = hands.position;
+
+            if (Input.GetKeyUp(KeyCode.Space))
+            {
+                isBallInHands = false;
+                isBallFlying = true;
+                T = 0;
+            }
+        }
+        if (isBallFlying)
+        {
+            T += Time.deltaTime;
+            float duration = 0.5f;
+            float T1 = T / duration;
+
+            Vector3 position = Vector3.Lerp(target.position, ballTarget.position, T1);
+
+            Vector3 arc = Vector3.up * 5 * Mathf.Sin(T1 * 3.14f);
+
+            ball.position = position + arc;
+
+            if (T1 >= 1)
+            {
+                isBallFlying = false;
+                ball.GetComponent<Rigidbody>().isKinematic = false;
+            }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!isBallInHands && !isBallFlying)
+        {
+            isBallInHands = true;
+            ball.GetComponent<Rigidbody>().isKinematic = true;
+        }
+    }
+
+    private int score = 0;
+    private int points = 0;
+    [SerializeField]
+    private TMP_Text scoreText;
+
+    [SerializeField]
+    private Transform player;
+
+    [SerializeField]
+    private Transform ballTarget;
+
+    private float distance;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        distance = (ballTarget.position.x - player.position.x) +
+            (ballTarget.position.z - player.position.z);
+        scoreText.text = "Score: " + score;
+    }
+    private void OnTriggerEnter(Collider collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            score += points;
+        }
+        if (collision.gameObject.CompareTag("Zone1"))
+        {
+            points = 30 + (int)distance;
+        }
+        if (collision.gameObject.CompareTag("Zone2"))
+        {
+            points = 20 + (int)distance;
+        }
+        if (collision.gameObject.CompareTag("Zone3"))
+        {
+            points = 10 + (int)distance;
+        }
+    }
 }

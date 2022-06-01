@@ -434,4 +434,32 @@ public class AI : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(0, 0, angle);
         return rotation;
     }
+    [Min(0f)]
+    [SerializeField]
+    private float moveSpeed = 2.5f;
+
+    private Rigidbody rb;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+        rb.velocity = new Vector3(horizontalInput * moveSpeed, rb.velocity.y, verticalInput * moveSpeed);
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Cube"))
+        {
+            var force = other.gameObject.transform.localScale;
+            rb.AddForce(Vector3.up * force.y * 10, ForceMode.Impulse);
+            Debug.Log("Force = " + force.y * 20);
+        }
+    }
 }

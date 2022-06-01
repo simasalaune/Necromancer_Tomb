@@ -39,4 +39,57 @@ public class EnemyHealthBar : MonoBehaviour
             sliderEffect.value = slider.value;
         
     }
+
+    [Min(0f)]
+    [SerializeField]
+    private float moveSpeed = 2.5f;
+
+    [Min(0f)]
+    [SerializeField]
+    private float jumpForce = 2.5f;
+
+    private float horizontalInput;
+    private float verticalInput;
+    private bool isGrounded;
+
+    private Rigidbody rb;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        ProcessInput();
+    }
+    void FixedUpdate()
+    {
+        Movement();
+    }
+
+    private void Movement()
+    {
+        rb.velocity = new Vector3(horizontalInput * moveSpeed, rb.velocity.y, verticalInput * moveSpeed);
+        if (isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+    }
+
+    private void ProcessInput()
+    {
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
+    }
+    private void OnCollisionEnter(Collision other)
+    {
+        isGrounded = true;
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        isGrounded = false;
+    }
 }

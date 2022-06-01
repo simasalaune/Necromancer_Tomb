@@ -496,4 +496,59 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Game Over!");
         Destroy(this);
     }
+
+    [SerializeField]
+    private TMP_Text text1;
+    private float T1;
+
+    [SerializeField]
+    private TMP_Text text2;
+    private float T2;
+
+    [SerializeField]
+    private TMP_Text text3;
+    private float T3;
+
+    [SerializeField]
+    private float moveSpeed = 5.0f;
+
+    private bool start = false;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Vector3 direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical"));
+        transform.position += direction * moveSpeed * Time.deltaTime;
+        transform.LookAt(transform.position + direction);
+        T1 += Time.deltaTime;
+        T3 += Time.deltaTime;
+        if (start)
+            T2 += Time.deltaTime;
+        else
+            T2 = 0.0f;
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Zone1"))
+        {
+            text1.text = "Triggered at: " + T1;
+            start = true;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("Zone1"))
+        {
+            text2.text = "At trigger for: " + T2;
+            text3.text = "Stopped trigger at: " + T3;
+            T2 = 0.0f;
+            start = false;
+        }
+    }
 }

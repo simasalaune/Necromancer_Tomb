@@ -148,4 +148,141 @@ public class AttackController : MonoBehaviour
         }
         Destroy(gameObject);
     }
+
+    [SerializeField]
+    private float hp;
+
+    [SerializeField]
+    private float maxHp = 40.0f;
+
+    private Renderer texture;
+    private Color color;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        hp = maxHp;
+        texture = GetComponent<Renderer>();
+        color = texture.material.color;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (hp <= 0)
+            Destroy(gameObject);
+        texture.material.color = new Color(color.r, color.g, color.b, color.a);
+    }
+
+    public void TakeDamage(float damage)
+    {
+        hp -= damage;
+        color.a -= damage / 50;
+    }
+
+    [SerializeField]
+    private float hp;
+
+    [SerializeField]
+    private float maxHp = 40.0f;
+
+    private Renderer texture;
+    private Color color;
+    [SerializeField]
+    private GameObject player;
+    private NavMeshAgent agent;
+    // Start is called before the first frame update
+    void Start()
+    {
+        hp = maxHp;
+        texture = GetComponent<Renderer>();
+        color = texture.material.color;
+        agent = GetComponent<NavMeshAgent>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        agent.destination = player.transform.position;
+        if (hp <= 0)
+            Destroy(gameObject);
+        texture.material.color = new Color(color.r, color.g, color.b, color.a);
+    }
+
+    public void TakeDamage1(float damage)
+    {
+        hp -= damage;
+        color.a -= damage / 50;
+    }
+
+    [Min(0f)]
+    [SerializeField]
+    private float moveSpeed = 2.5f;
+
+    [Min(0f)]
+    [SerializeField]
+    private float jumpForce = 2.5f;
+
+    private float horizontalInput;
+    private float verticalInput;
+    private bool isJumping;
+    private bool isGrounded;
+
+    private Rigidbody rb;
+
+    private HP hp;
+    private HP_Enemy hpEnemy;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        hp = GetComponent<HP>();
+    }
+
+    private void Start()
+    {
+        hpEnemy = GameObject.FindGameObjectWithTag("Enemy").GetComponent<HP_Enemy>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        ProcessInput();
+    }
+    void FixedUpdate()
+    {
+        Movement();
+    }
+
+    private void Movement()
+    {
+        rb.velocity = new Vector3(horizontalInput * moveSpeed, rb.velocity.y, verticalInput * moveSpeed);
+        if (isJumping && isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+        isJumping = false;
+    }
+
+    private void ProcessInput()
+    {
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
+
+        if (Input.GetButtonDown("Jump"))
+            isJumping = true;
+
+        if (Input.GetKeyDown("q"))
+            hpEnemy.TakeDamage1(10.0f);
+    }
+    private void OnCollisionEnter(Collision other)
+    {
+        isGrounded = true;
+        hp.TakeDamage(10.0f);
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        isGrounded = false;
+    }
 }
